@@ -8,8 +8,11 @@ import io
 try:
     import google.generativeai as genai
     GENAI_AVAILABLE = True
-except ImportError:
+    st.success("✅ Google Generative AI ライブラリが正常に読み込まれました")
+except ImportError as e:
     GENAI_AVAILABLE = False
+    st.error(f"❌ Google Generative AI ライブラリの読み込みに失敗: {str(e)}")
+    st.info("requirements.txt の内容を確認してください")
 
 # ページ設定
 st.set_page_config(
@@ -235,7 +238,8 @@ with st.sidebar:
     use_ai_check = st.checkbox("AIチェック", value=bool(api_key and GENAI_AVAILABLE))
     
     if not GENAI_AVAILABLE:
-        st.info("🔄 AI機能の初期化中...")
+        st.warning("⚠️ AI機能が利用できません。アプリを再起動してみてください。")
+        st.info("Streamlit Cloud: 右上の⋮メニューから「Reboot app」を選択")
     elif not api_key and use_ai_check:
         st.warning("AIチェックにはAPI Keyが必要です")
 
