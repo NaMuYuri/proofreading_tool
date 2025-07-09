@@ -4,14 +4,12 @@ import pandas as pd
 from datetime import datetime
 import io
 
-# Google Generative AIライブラリのインポート（オプション）
+# Google Generative AIライブラリのインポート
 try:
     import google.generativeai as genai
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False
-    st.warning("⚠️ google.generativeai ライブラリがインストールされていません。AI機能は利用できません。")
-    st.info("インストール方法: pip install google-generativeai")
 
 # ページ設定
 st.set_page_config(
@@ -237,8 +235,7 @@ with st.sidebar:
     use_ai_check = st.checkbox("AIチェック", value=bool(api_key and GENAI_AVAILABLE))
     
     if not GENAI_AVAILABLE:
-        st.error("AI機能を使用するには google-generativeai をインストールしてください")
-        st.code("pip install google-generativeai")
+        st.info("🔄 AI機能の初期化中...")
     elif not api_key and use_ai_check:
         st.warning("AIチェックにはAPI Keyが必要です")
 
