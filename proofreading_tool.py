@@ -127,6 +127,19 @@ class ScriptProofreadingTool:
                     'message': 'セリフの終わりの「」」が見つかりません',
                     'severity': 'error'
                 })
+
+            # 話者不明チェック
+            line_stripped = line.strip()
+            # 行頭が「」で始まる場合、話者が不明である可能性が高い
+            if line_stripped.startswith('「'):
+                results.append({
+                    'type': '話者不明',
+                    'line': line_idx,
+                    'position': 0,
+                    'text': line,
+                    'message': 'セリフの前にキャラクター名やナレーション(N)の指定がありません。',
+                    'severity': 'suggestion'
+                })
         
         return results
     
@@ -141,16 +154,17 @@ class ScriptProofreadingTool:
         
         try:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            model = genai.GenerativeModel('gemini-1.5-flash-latest')
             
             prompt = f"""以下の台本テキストを校正してください。誤字脱字、表記の統一、不自然な表現、台本として不適切な部分を指摘してください。
+特に、**各セリフの前に話者（キャラクター名やナレーション）が明確に指定されているか**も確認し、話者が不明なセリフがあれば指摘してください。
 
 【台本テキスト】
 {text}
 
 【指摘形式】
 各指摘について以下の形式で回答してください：
-- 種類: （誤字/脱字/表記統一/表現改善/その他）
+- 種類: （誤字/脱字/表記統一/表現改善/話者不明/その他）
 - 行番号: （該当する行番号）
 - 問題箇所: （問題のある部分）
 - 修正案: （修正提案）
@@ -412,11 +426,13 @@ with st.expander("📚 機能説明・使い方"):
         - 表記統一チェック（「出来る」→「できる」等）
         - 行の長さチェック
         - セリフの形式チェック
+        - **話者が不明なセリフの検出**
         
-        **AI機能（Gemini 2.0 Flash）:**
+        **AI機能（Gemini 1.5 Flash）:**
         - 高精度な誤字脱字検出
         - 表記統一の提案
         - 不自然な表現の指摘
+        - **話者が不明なセリフの指摘**
         - 台本として適切な修正提案
         """)
     
@@ -446,5 +462,5 @@ st.markdown("💡 **ヒント**: API Keyなしでも基本的なチェック機�
 pip install streamlit google-generativeai pandas
 
 実行方法:
-streamlit run app.py
+streamlit run proofreading_tool.py
 """
