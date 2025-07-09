@@ -1,9 +1,17 @@
 import streamlit as st
-import google.generativeai as genai
 import re
 import pandas as pd
 from datetime import datetime
 import io
+
+# Google Generative AIライブラリのインポート（オプション）
+try:
+    import google.generativeai as genai
+    GENAI_AVAILABLE = True
+except ImportError:
+    GENAI_AVAILABLE = False
+    st.warning("⚠️ google.generativeai ライブラリがインストールされていません。AI機能は利用できません。")
+    st.info("インストール方法: pip install google-generativeai")
 
 # ページ設定
 st.set_page_config(
@@ -123,6 +131,10 @@ class ScriptProofreadingTool:
     
     def perform_ai_check(self, text, api_key):
         """Gemini AIを使用した高精度チェック"""
+        if not GENAI_AVAILABLE:
+            st.error("Google Generative AIライブラリがインストールされていません。")
+            return []
+        
         if not api_key:
             return []
         
@@ -222,9 +234,12 @@ with st.sidebar:
     # チェックオプション
     st.subheader("チェックオプション")
     use_basic_check = st.checkbox("基本チェック", value=True)
-    use_ai_check = st.checkbox("AIチェック", value=bool(api_key))
+    use_ai_check = st.checkbox("AIチェック", value=bool(api_key and GENAI_AVAILABLE))
     
-    if not api_key and use_ai_check:
+    if not GENAI_AVAILABLE:
+        st.error("AI機能を使用するには google-generativeai をインストールしてください")
+        st.code("pip install google-generativeai")
+    elif not api_key and use_ai_check:
         st.warning("AIチェックにはAPI Keyが必要です")
 
 # メインエリア
@@ -268,7 +283,7 @@ with col2:
                     all_results.extend(basic_results)
                 
                 # AIチェック
-                if use_ai_check and api_key:
+                if use_ai_check and api_key and GENAI_AVAILABLE:
                     ai_results = tool.perform_ai_check(script_input, api_key)
                     all_results.extend(ai_results)
             
