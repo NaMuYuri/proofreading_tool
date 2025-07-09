@@ -183,12 +183,21 @@ class ScriptProofreadingTool:
     
     def format_ai_result(self, issue):
         """AI結果をフォーマット"""
+        reason = issue.get('reason', '')
+        suggestion = issue.get('suggestion', '')
+        
+        message_parts = []
+        if reason:
+            message_parts.append(reason)
+        if suggestion:
+            message_parts.append(f"提案: {suggestion}")
+        
         return {
             'type': f"AI: {issue.get('type', '')}",
             'line': issue.get('line', 1),
             'position': 0,
             'text': issue.get('text', ''),
-            'message': f"{issue.get('reason', '')} {f'提案: {issue.get(\"suggestion\", \"\")}' if issue.get('suggestion') else ''}",
+            'message': ' '.join(message_parts),
             'severity': 'error' if issue.get('type') in ['誤字', '脱字'] else 'suggestion'
         }
 
@@ -206,7 +215,7 @@ with st.sidebar:
     # ファイルアップロード
     uploaded_file = st.file_uploader(
         "📁 ファイルをアップロード",
-        type=['txt', 'doc', 'docx'],
+        type=['txt'],
         help="テキストファイルをアップロードできます"
     )
     
@@ -227,10 +236,11 @@ with col1:
     # ファイルが読み込まれた場合
     script_text = ""
     if uploaded_file is not None:
-        if uploaded_file.type == "text/plain":
+        try:
             script_text = str(uploaded_file.read(), "utf-8")
-        else:
-            st.info("現在はテキストファイル（.txt）のみサポートしています")
+            st.success(f"ファイル '{uploaded_file.name}' を読み込みました")
+        except Exception as e:
+            st.error(f"ファイルの読み込みに失敗しました: {str(e)}")
     
     # テキストエリア
     script_input = st.text_area(
@@ -265,6 +275,7 @@ with col2:
             # セッションステートに保存
             st.session_state['results'] = all_results
             st.session_state['script_text'] = script_input
+            st.success("チェックが完了しました！")
 
 # 結果表示
 if 'results' in st.session_state:
@@ -405,7 +416,19 @@ with st.expander("📚 機能説明・使い方"):
         
         **API Key取得:**
         [Google AI Studio](https://makersuite.google.com/app/apikey) でAPI Keyを取得してください。
+        
+        **対応ファイル:**
+        現在はテキストファイル（.txt）のみサポートしています。
         """)
 
 st.markdown("---")
 st.markdown("💡 **ヒント**: API Keyなしでも基本的なチェック機能は利用できます。")
+
+# 必要なライブラリ情報をコメントで追加
+"""
+必要なライブラリのインストール:
+pip install streamlit google-generativeai pandas
+
+実行方法:
+streamlit run app.py
+"""
