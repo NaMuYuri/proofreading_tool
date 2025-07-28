@@ -910,22 +910,7 @@ with st.expander("📚 機能説明・使い方"):
 st.markdown("---")
 st.markdown("💡 **ヒント**: API Keyなしでも基本的なチェック機能は利用できます。プロレベルの動画制作にはAPI Keyが必要です。")
 
-# 必要なライブラリ情報をコメントで追加
-"""
-必要なライブラリのインストール:
-pip install streamlit google-generativeai pandas regex
-
-実行方法:
-streamlit run youtube_script_creator.py
-
-機能一覧:
-1. YouTube 2ch系動画のプロット・台本自動生成
-2. フルオート/セミセルフ/セルフの3つの制作モード
-3. 8つのジャンル×各6サブジャンル対応
-4. 5つの台本スタイル（標準/ドラマチック/コメディ/シリアス/若者向け）
-5. 台本改善機能（感情表現強化/テンポ改善/笑い要素追加等）
-6. 高精度誤字脱字チェック機能
-7. 話者不明セリフの自動検出
-8. プロレベルの品質保証
-"""basic_check = st.checkbox("基本チェック", value=True)
+# 必要なライブラリ情報
+# pip install streamlit google-generativeai pandas regex
+# 実行方法: streamlit run proofreading_tool.pybasic_check = st.checkbox("基本チェック", value=True)
         use_
